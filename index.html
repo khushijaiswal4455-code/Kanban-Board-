@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow | Kanban Board</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div>
+        <p class="eyebrow">YOUR PERSONAL WORKSPACE</p>
+        <h1>TaskFlow</h1>
+        <p class="subtitle">Organize your tasks. Keep moving forward.</p>
+      </div>
+
+      <button
+        id="theme-toggle"
+        class="button secondary"
+        type="button"
+        aria-pressed="false"
+      >
+        Dark mode
+      </button>
+    </header>
+
+    <main>
+      <section class="overview panel" aria-labelledby="overview-title">
+        <div class="overview-heading">
+          <div>
+            <h2 id="overview-title">Project overview</h2>
+            <p id="summary-text">No tasks yet.</p>
+          </div>
+          <span id="completion-label" class="completion">0% complete</span>
+        </div>
+
+        <div
+          id="progress"
+          class="progress"
+          role="progressbar"
+          aria-label="Completed tasks"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+      </section>
+
+      <section class="panel task-editor" aria-labelledby="form-title">
+        <h2 id="form-title">Add a task</h2>
+
+        <form id="task-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="title">Task title</label>
+              <input
+                id="title"
+                name="title"
+                type="text"
+                placeholder="What needs to be done?"
+                maxlength="100"
+                required
+              >
+            </div>
+
+            <div class="field">
+              <label for="priority">Priority</label>
+              <select id="priority" name="priority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="due-date">Due date</label>
+              <input id="due-date" name="dueDate" type="date" required>
+            </div>
+
+            <div class="field description-field">
+              <label for="description">Description</label>
+              <textarea
+                id="description"
+                name="description"
+                rows="3"
+                maxlength="1000"
+                placeholder="Add a few details (optional)"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button id="submit-button" class="button primary" type="submit">
+              Add task
+            </button>
+            <button
+              id="cancel-edit"
+              class="button secondary"
+              type="button"
+              hidden
+            >
+              Cancel edit
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="toolbar" aria-label="Filter tasks">
+        <div class="field search-field">
+          <label for="search">Search titles</label>
+          <input id="search" type="search" placeholder="Search tasks...">
+        </div>
+
+        <div class="field">
+          <label for="priority-filter">Filter by priority</label>
+          <select id="priority-filter">
+            <option value="all">All priorities</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+
+        <button id="undo-delete" class="button secondary" type="button" disabled>
+          Undo delete
+        </button>
+      </section>
+
+      <p id="notice" class="notice" role="status" aria-live="polite"></p>
+
+      <section class="board" aria-label="Kanban board">
+        <section class="column todo-column" aria-labelledby="todo-heading">
+          <header class="column-header">
+            <h2 id="todo-heading">
+              <span class="dot todo-dot" aria-hidden="true"></span>
+              To Do
+            </h2>
+            <span id="todo-count" class="count">0</span>
+          </header>
+          <div id="todo-list" class="task-list"></div>
+        </section>
+
+        <section class="column progress-column" aria-labelledby="progress-heading">
+          <header class="column-header">
+            <h2 id="progress-heading">
+              <span class="dot progress-dot" aria-hidden="true"></span>
+              In Progress
+            </h2>
+            <span id="progress-count" class="count">0</span>
+          </header>
+          <div id="in-progress-list" class="task-list"></div>
+        </section>
+
+        <section class="column done-column" aria-labelledby="done-heading">
+          <header class="column-header">
+            <h2 id="done-heading">
+              <span class="dot done-dot" aria-hidden="true"></span>
+              Done
+            </h2>
+            <span id="done-count" class="count">0</span>
+          </header>
+          <div id="done-list" class="task-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <footer>TaskFlow — one task at a time.</footer>
+  </div>
+
+  <template id="task-template">
+    <article class="task-card">
+      <div class="card-top">
+        <span class="priority-badge"></span>
+        <span class="overdue-label" hidden>Overdue</span>
+      </div>
+
+      <h3 class="task-title"></h3>
+      <p class="task-description"></p>
+      <p class="task-date"></p>
+
+      <div class="card-actions">
+        <button class="text-button" type="button" data-action="edit">Edit</button>
+        <button class="text-button danger" type="button" data-action="delete">
+          Delete
+        </button>
+      </div>
+
+      <div class="move-actions">
+        <button class="move-button" type="button" data-action="previous">
+          ← Back
+        </button>
+        <button class="move-button" type="button" data-action="next">
+          Next →
+        </button>
+      </div>
+    </article>
+  </template>
+</body>
+</html>
