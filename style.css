@@ -1,29 +1,47 @@
 :root {
   color-scheme: light;
-  --background: #f4f6fb;
+  --background: #f7f4ff;
   --surface: #ffffff;
-  --column: #eaeef6;
-  --text: #20283e;
-  --muted: #69738b;
-  --border: #dce2ee;
-  --primary: #6554dc;
-  --primary-hover: #5140c1;
+  --column: #f1edff;
+  --text: #24284a;
+  --muted: #6d7392;
+  --border: #e2dcf5;
+  --primary: #7a5cff;
+  --primary-hover: #6447e8;
   --input: #ffffff;
-  --shadow: 0 8px 25px rgb(24 39 75 / 5%);
+  --shadow: 0 10px 30px rgb(110 90 220 / 10%);
+
+  --bg-gradient-1: linear-gradient(135deg, #ffe6f5 0%, #e7e0ff 50%, #dff3ff 100%);
+  --bg-gradient-2: radial-gradient(circle at 15% 20%, #ffd6ec 0%, transparent 45%),
+                   radial-gradient(circle at 85% 15%, #d7c9ff 0%, transparent 45%),
+                   radial-gradient(circle at 50% 90%, #c8f2ff 0%, transparent 50%);
+  --blob-1: #ffb7dd;
+  --blob-2: #b7a7ff;
+  --blob-3: #a5e8ff;
+  --grid-color: rgb(122 92 255 / 7%);
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --background: #111521;
-  --surface: #1c2233;
-  --column: #171d2c;
+  --background: #121324;
+  --surface: #1d2038;
+  --column: #191c30;
   --text: #edf0fa;
   --muted: #a4aec5;
-  --border: #313a50;
-  --primary: #9687ff;
-  --primary-hover: #ac9fff;
-  --input: #151b29;
-  --shadow: 0 8px 25px rgb(0 0 0 / 15%);
+  --border: #333a55;
+  --primary: #a08cff;
+  --primary-hover: #b7a6ff;
+  --input: #161a2c;
+  --shadow: 0 10px 30px rgb(0 0 0 / 20%);
+
+  --bg-gradient-1: linear-gradient(135deg, #1b1636 0%, #141a33 50%, #101a2e 100%);
+  --bg-gradient-2: radial-gradient(circle at 15% 20%, rgb(255 122 196 / 18%) 0%, transparent 45%),
+                   radial-gradient(circle at 85% 15%, rgb(132 108 255 / 20%) 0%, transparent 45%),
+                   radial-gradient(circle at 50% 90%, rgb(88 190 255 / 16%) 0%, transparent 50%);
+  --blob-1: rgb(255 122 196 / 28%);
+  --blob-2: rgb(132 108 255 / 30%);
+  --blob-3: rgb(88 190 255 / 25%);
+  --grid-color: rgb(160 140 255 / 7%);
 }
 
 * {
@@ -32,10 +50,125 @@
 
 body {
   margin: 0;
-  background: var(--background);
+  min-height: 100vh;
+  background: var(--bg-gradient-1);
   color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
   line-height: 1.5;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Triple background effect: gradient + floating blobs + soft grid */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Layer 1: soft triple-color glow */
+body::before {
+  background: var(--bg-gradient-2);
+}
+
+/* Layer 2: cute floating blurred blobs */
+body::after {
+  background:
+    radial-gradient(circle at 12% 25%, var(--blob-1) 0%, transparent 35%),
+    radial-gradient(circle at 82% 18%, var(--blob-2) 0%, transparent 38%),
+    radial-gradient(circle at 65% 82%, var(--blob-3) 0%, transparent 40%),
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    42px 42px,
+    42px 42px;
+  animation: floatBackground 18s ease-in-out infinite alternate;
+  filter: blur(0.5px);
+}
+
+@keyframes floatBackground {
+  0% {
+    background-position:
+      0% 0%,
+      0% 0%,
+      0% 0%,
+      0 0,
+      0 0;
+  }
+
+  100% {
+    background-position:
+      4% 6%,
+      -5% 4%,
+      3% -5%,
+      42px 42px,
+      42px 42px;
+  }
+}
+
+/* Optional: extra cute animated orbs */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(45px);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.orb-1 {
+  width: 260px;
+  height: 260px;
+  top: 8%;
+  left: 5%;
+  background: var(--blob-1);
+  animation: orbFloat1 14s ease-in-out infinite alternate;
+}
+
+.orb-2 {
+  width: 220px;
+  height: 220px;
+  top: 55%;
+  right: 7%;
+  background: var(--blob-2);
+  animation: orbFloat2 17s ease-in-out infinite alternate;
+}
+
+.orb-3 {
+  width: 180px;
+  height: 180px;
+  bottom: 8%;
+  left: 40%;
+  background: var(--blob-3);
+  animation: orbFloat3 20s ease-in-out infinite alternate;
+}
+
+@keyframes orbFloat1 {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(45px, 35px) scale(1.12); }
+}
+
+@keyframes orbFloat2 {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(-40px, -30px) scale(1.08); }
+}
+
+@keyframes orbFloat3 {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(30px, -40px) scale(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after,
+  .orb {
+    animation: none;
+  }
 }
 
 button,
