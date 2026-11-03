@@ -474,3 +474,163 @@ function showNotice(message) {
 
 // Refresh overdue labels if the page remains open overnight.
 setInterval(render, 60000);
+const palette = document.getElementById("commandPalette");
+const paletteInput = document.getElementById("paletteInput");
+const paletteResults = document.getElementById("paletteResults");
+
+let paletteItems = [];
+let activeIndex = 0;
+
+function openPalette() {
+  palette.classList.remove("hidden");
+  paletteInput.value = "";
+  renderPaletteResults("");
+  paletteInput.focus();
+}
+
+function closePalette() {
+  palette.classList.add("hidden");
+}
+
+function getAllTasks() {
+  return Array.from(document.querySelectorAll(".task, .card, [data-task]"))
+    .map((el) => ({
+      el,
+      text: el.innerText.trim()
+    }))
+    .filter((task) => task.text.length > 0);
+}
+
+function renderPaletteResults(query) {
+  const tasks = getAllTasks();
+  paletteItems = [];
+
+  paletteResults.innerHTML = "";
+
+  const matches = tasks.filter((task) =>
+    task.text.toLowerCase().includes(query.toLowerCase())
+  );
+
+  matches.slice(0, 8).forEach((task) => {
+    const li = document.createElement("li");
+    li.textContent = task.text.slice(0, 90);
+    li.addEventListener("click", () => {
+      focusTask(task.el);
+      closePalette();
+    });
+    paletteResults.appendChild(li);
+    paletteItems.push({ type: "task", el: task.el });
+  });
+
+  const columnMatch = query.match(/^#(todo|inprogress|review|done)\s+(.+)/i);
+
+  if (columnMatch) {
+    const li = document.createElement("li");
+    li.textContent = `Create task in “${columnMatch[1]}”: ${columnMatch[2]}`;
+    li.addEventListener("click", () => {
+      createTaskInColumn(columnMatch[1], columnMatch[2]);
+      closePalette();
+    });
+    paletteResults.prepend(li);
+    paletteItems.unshift({ type: "create", column: columnMatch[1], text: columnMatch[2] });
+  }
+
+  activeIndex = 0;
+  updateActiveResult();
+}
+
+function updateActiveResult() {
+  Array.from(paletteResults.children).forEach((li, index) => {
+    li.classList.toggle("active", index === activeIndex);
+  });
+}
+
+function focusTask(taskEl) {
+  taskEl.scrollIntoView({ behavior: "smooth", block: "center" });
+  taskEl.style.outline = "3px solid #6366f1";
+  setTimeout(() => {
+    taskEl.style.outline = "";
+  }, 1500);
+}
+
+function createTaskInColumn(columnName, text) {
+  const columns = document.querySelectorAll(".column, .kanban-column, [data-column]");
+  const target = Array.from(columns).find((col) =>
+    col.dataset.column?.toLowerCase() === columnName.toLowerCase() ||
+    col.innerText.toLowerCase().includes(columnName.toLowerCase())
+  );
+
+  if (!target) {
+    alert(`Could not find column: ${columnName}`);
+    return;
+  }
+
+  const task = document.createElement("div");
+  task.className = "task";
+  task.textContent = text;
+  task.draggable = true;
+
+  const taskContainer =
+    target.querySelector(".tasks, .task-list, .cards") || target;
+
+  taskContainer.appendChild(task);
+  enableTaskDragging(task);
+  saveBoard?.();
+}
+
+function enableTaskDragging(task) {
+  task.addEventListener("dragstart", () => {
+    task.classList.add("dragging");
+  });
+
+  task.addEventListener("dragend", () => {
+    task.classList.remove("dragging");
+    saveBoard?.();
+  });
+}
+
+document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    palette.classList.contains("hidden") ? openPalette() : closePalette();
+  }
+
+  if (event.key === "Escape" && !palette.classList.contains("hidden")) {
+    closePalette();
+  }
+
+  if (palette.classList.contains("hidden")) return;
+
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    activeIndex = Math.min(activeIndex + 1, paletteItems.length - 1);
+    updateActiveResult();
+  }
+
+  if (event.key === "ArrowUp") {
+    event.preventDefault();
+    activeIndex = Math.max(activeIndex - 1, 0);
+    updateActiveResult();
+  }
+
+  if (event.key === "Enter") {
+    const selected = paletteItems[activeIndex];
+    if (!selected) return;
+
+    if (selected.type === "task") {
+      focusTask(selected.el);
+    } else {
+      createTaskInColumn(selected.column, selected.text);
+    }
+
+    closePalette();
+  }
+});
+
+paletteInput.addEventListener("input", () => {
+  renderPaletteResults(paletteInput.value);
+});
+
+palette.addEventListener("click", (event) => {
+  if (event.target === palette) closePalette();
+});

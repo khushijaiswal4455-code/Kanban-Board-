@@ -7,6 +7,15 @@
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
 </head>
+<div id="commandPalette" class="command-palette hidden">
+  <div class="palette-box">
+    <input id="paletteInput" type="text" placeholder="Search tasks or type: #todo New task" />
+    <ul id="paletteResults"></ul>
+    <div class="palette-hint">
+      ↑ ↓ navigate • Enter select/create • Esc close
+    </div>
+  </div>
+</div>
 <body>
   <div class="app">
     <header class="header">
